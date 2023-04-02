@@ -1,7 +1,7 @@
 import { AUTO, Game } from 'phaser';
 import GameOver from './src/scenes/GameOver';
 import Level from './src/scenes/Level';
-import Primeira from './src/scenes/Primeira';
+//import PrimeiraFase from './src/scenes/PrimeiraFase';
 
 const config = {
 	width: 480,		// largura
