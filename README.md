@@ -1,6 +1,5 @@
 # Trabalho-Flappy-Bird
 
-
 Um trabalho da disciplina Introdução a Jogos, para desenvolver um jogo baseado no Flappy-Bird utilizando o framework JavaScript Phaser v3.55.2
 
 

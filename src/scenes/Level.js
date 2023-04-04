@@ -7,7 +7,9 @@ export default class Level extends Scene {
   player;
 
   /** @type {Phaser.Physics.Arcade.StaticGroup} */
-  platforms;
+  pipesUp;
+  /** @type {Phaser.Physics.Arcade.StaticGroup} */
+  pipesDown;
 
   /** @type {Phaser.Types.Input.Keyboard.CursorKeys} */
   cursors;
@@ -15,64 +17,65 @@ export default class Level extends Scene {
   /** @type {Phaser.Physics.Arcade.Group} */
   carrots;
 
-  points = 0;
   /** @type {Phaser.GameObjects.Text} */
   pointsText;
+
+  keySpace;
+  points = 0
 
   constructor() {
       super('level');
   }
 
   preload() {
-    this.load.image('imgBackground', 'assets/bg_layer1.png');
-    this.load.image('imgPlatform', 'assets/ground_grass.png');
-    this.load.image('imgBunny-stand', 'assets/bunny1_stand.png'); // Coelho parado
-    this.load.image('imgBunny-jump', 'assets/bunny1_jump.png'); // Coelho pulando
-    this.load.image('imgCarrot', 'assets/carrot.png'); // Cenoura
-
-    this.load.audio('audioJump', 'assets/sfx/jump.ogg'); // Quando pula
-    this.load.audio('audioGameover', 'assets/sfx/gameover.ogg'); 
-    this.load.audio('audioEat', 'assets/sfx/eat.ogg');
+    this.load.image('imgBackground', 'assets/backgroundColorGrass.png');
+    this.load.image('imgPipeBig', 'assets/pipe3.png');
+    this.load.image('imgPipeSmall', 'assets/pipe2.png');
+    this.load.image('imgShip', 'assets/fmship.png'); // Coelho parado
+    
   }
 
   create() {
-    // Background
+    // Criando Background
     this.add.image(240, 320, 'imgBackground')
-      .setScrollFactor(0, 0);
-
-    // Plataforma
-    //const platform = this.physics.add.staticImage(240, 320, 'platform')
-    //    .setScale(0.5);
-
-    // Grupo de plataformas
-    this.platforms = this.physics.add.staticGroup();
-
-    // Criando as plataforma 
-    for (let i = 0; i < 5; i++) {
-      const x = Math.Between(80, 400); // Largura entre 80 a 400
-      const y = 150 * i; // Altura 
-      const platform = this.platforms.create(x, y, 'imgPlatform'); // Cria a plataforma nos x, y 
-      platform.setScale(0.5);
-      platform.body.updateFromGameObject(); // Atualiza a posição, largura, altura e centro do Corpo a partir do seu Objecto de Jogo e offset.
-    }
+      .setScrollFactor(0);
 
     // Criando o Player
-    this.player = this.physics.add.image(240, 120, 'imgBunny-stand') // Add a img do coelho no chão
-      .setScale(0.5);
-        
+    this.player = this.physics.add.image(240, 120, 'imgShip') // Add a img do coelho no chão
+    .setAngle(90)
+    .setScale(1.5)
+
+    // Grupo de canos
+    this.pipesUp = this.physics.add.staticGroup();
+    
+    // Criando os canos 
+    for (let i = 0; i < 5; i++) {
+      const x = 160 * i; // Largura entre 80 a 400
+      const y = -100; // Altura 
+      const platform = this.pipesUp.create(x, y, 'imgPipeBig'); // Cria a plataforma nos x, y 
+      const platformDown = this.pipesUp.create(x, 350, 'imgPipeBig'); // Cria a plataforma nos x, y 
+      platform.setScale(0.3);
+      platformDown.setScale(0.3);
+      platform.setAngle(180);
+      platform.body.updateFromGameObject(); // Atualiza a posição, largura, altura e centro do Corpo a partir do seu Objecto de Jogo e offset.
+      platformDown.body.updateFromGameObject(); // Atualiza a posição, largura, altura e centro do Corpo a partir do seu Objecto de Jogo e offset.
+    }
+      
     // Faz os elementos colidirem
-    this.physics.add.collider(this.player, this.platforms);
+    //this.physics.add.collider(this.player, this.pipesUp);
+
+    //this.physics.add.overlap(this.player, this.carrots, this.handleCollectCarrot, undefined, this);
 
     // Disabilitar a colisão do coelho nas laterais e em cima
-    this.player.body.checkCollision.left = false;
-    this.player.body.checkCollision.right = false;
-    this.player.body.checkCollision.up = false;
+    //this.player.body.checkCollision.left = false;
 
     // Câmera - Ela fica focado no player
     this.cameras.main.startFollow(this.player);
+    //this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
 
     // Definir uma dead zone para a Câmera
-    this.cameras.main.setDeadzone(this.scale.width * 1.5);
+    this.cameras.main.setDeadzone(this.scale.width - 400);
+    //this.cameras.main.setZoom(4);
 
     // Cursores
     this.cursors = this.input.keyboard.createCursorKeys();
@@ -83,9 +86,7 @@ export default class Level extends Scene {
         classType: Carrot
     });
 
-    this.physics.add.collider(this.carrots, this.platforms);
 
-    this.physics.add.overlap(this.player, this.carrots, this.handleCollectCarrot, undefined, this);
 
     // Texto de Pontuação
     const style = { color: '#000', fontSize: 24 };
@@ -93,61 +94,54 @@ export default class Level extends Scene {
     this.pointsText.setScrollFactor(0);
     this.pointsText.setOrigin(0.5, 0);
 
-    let rect = this.add.rectangle(240, 300, 100, 50, 0xffcc00);
+    //let rect = this.add.rectangle(240, 300, 100, 50, 0xffcc00);
   }
 
   update(time, delta) {
-    // Pulando
-    /**Quando colide na parte de baixo */
-    const touchingGround = this.player.body.touching.down;
-        
-    if ( touchingGround ) {
-      this.player.setVelocityY(-300);
-      this.sound.play('audioJump');
-
-      // Mudar a imagem do coelho ao pular
-      this.player.setTexture('imgBunny-jump'); // Coelho no ar
-    }
-
-    let velocityY = this.player.body.velocity.y;
-    if ( velocityY > 0 ) {
-      this.player.setTexture('imgBunny-stand'); // Coelho no chão
-    }
-
-    // Reusando as plataformas
-    this.platforms.children.iterate(child => {
+    this.player.setVelocityX(200);
+    this.player.setVelocityY(0);
+     // Reusando as plataformas
+    this.pipesUp.children.iterate(child => {
       /** @type {Phaser.Physics.Arcade.Sprite} */
       const platform = child;
 
-      // Pegar a posição Y da Câmera
-      const scrollY = this.cameras.main.scrollY;
-      if ( platform.y >= scrollY + 700 ) {
-        platform.x = Math.Between(80, 400);
-        platform.y = scrollY - Math.Between(0, 10);
+      //Pegar a posição Y da Câmera
+      const scrollx = this.cameras.main.scrollY;
+      if ( platform.y >= scrollx + 480 ) {
+        console.log('fffffff');
+        const x = 160; // Largura entre 80 a 400
+        const y = -100; // Altura 
+        const platform = this.pipesUp.create(x, y, 'imgPipeBig'); // Cria a plataforma nos x, y 
+        platform.setScale(0.3);
+        platform.body.updateFromGameObject(); // Atualiza a posição, largura, altura e centro do Corpo a partir do seu Objecto de Jogo e offset.
+    
+
+        platform.x = 200;
+        platform.y = scrollx - Math.Between(0, 10);
         platform.body.updateFromGameObject();
 
-          // criar uma cenoura acima
-        this.addCarrotAbove(platform);
+        //       // criar uma cenoura acima
+        //     this.addCarrotAbove(platform);
       }
     })
 
 
-    // Cursores Direita e Esquerda
-    if ( this.cursors.left.isDown ) {
-      this.player.setVelocityX(-200);
-    } else if ( this.cursors.right.isDown ) {
-      this.player.setVelocityX(200);
-    } else {
-      this.player.setVelocityX(0);
-    }
+    // // Cursores Direita e Esquerda
+    // if ( this.cursors.left.isDown ) {
+    //   this.player.setVelocityX(-200);
+    // } else if ( this.cursors.right.isDown ) {
+    //   this.player.setVelocityX(200);
+    // } else {
+    //   this.player.setVelocityX(0);
+    // }
 
-    // Testando se o coelho caiu
-    let bottomPlatform = this.findBottomPlatform();
-    if ( this.player.y > bottomPlatform.y + 200 ) {
-      // Ir para outra CENA
-      this.sound.play('audioGameover');
-      this.scene.start('sceneGame-over');
-    }
+    // // Testando se o coelho caiu
+    // let bottomPlatform = this.findBottomPlatform();
+    // if ( this.player.y > bottomPlatform.y + 200 ) {
+    //   // Ir para outra CENA
+    //   this.sound.play('audioGameover');
+    //   this.scene.start('sceneGame-over');
+    // }
   }
 
 
@@ -191,10 +185,10 @@ export default class Level extends Scene {
    * @returns Plataforma mais baixa.
    */
   findBottomPlatform() {
-    let platforms = this.platforms.getChildren();
-    let bottomPlatform = platforms[0];
-    for (let i = 1; i < platforms.length; i++) {
-      let platform = platforms[i];
+    let pipesUp = this.pipesUp.getChildren();
+    let bottomPlatform = pipesUp[0];
+    for (let i = 1; i < pipesUp.length; i++) {
+      let platform = pipesUp[i];
 
       if ( platform.y < bottomPlatform.y ) {
         continue;
