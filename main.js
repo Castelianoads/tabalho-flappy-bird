@@ -4,8 +4,8 @@ import Level from './src/scenes/Level';
 //import PrimeiraFase from './src/scenes/PrimeiraFase';
 
 const config = {
-	width: 480,		// largura
-	height: 640,	// altura
+	width: 480,		// largura 800
+	height: 640,	// altura 600
 	type: AUTO,
 	scene: [Level, GameOver],
 	physics: {
