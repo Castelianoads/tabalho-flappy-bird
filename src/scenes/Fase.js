@@ -7,6 +7,7 @@ export default class Level extends Scene {
   keySpace;
   points = 0
   bird;
+  corBird
 
   constructor() {
     super('fase');
@@ -15,26 +16,30 @@ export default class Level extends Scene {
   init(data) {
     console.log('init', data);
     this.bird = data.bird;
+    this.corBird = data.bird;
   }
 
   preload() {
     this.load.image('imgBackground', 'assets/backgroundColorGrass.png');
+
     this.load.image('imgPipeUp', 'assets/pipe-green-top.png');
     this.load.image('imgPipeDown', 'assets/pipe-green-bottom.png');
-    this.load.image('imgBirdBlue', 'assets/bluebird-downflap.png');
-    this.load.image('imgBirdRed', 'assets/redbird-downflap.png');  
+
+    this.load.image('imgBirdBlueUp', 'assets/bluebird-upflap.png');
+    this.load.image('imgBirdBlueDown', 'assets/bluebird-downflap.png');
+
+    this.load.image('imgBirdRedUp', 'assets/redbird-upflap.png');  
+    this.load.image('imgBirdRedDown', 'assets/redbird-downflap.png');  
   }
 
   // CREATE
   create() {
     this.add.image(240, 320, 'imgBackground').setScrollFactor(0);
-    if(this.bird === 'blue'){
-      console.log('bluee')
-      this.bird = this.physics.add.image(240, 120, 'imgBirdBlue').setScale(1).setGravityX(30)
+    if(this.bird === 'Blue'){
+      this.bird = this.physics.add.image(240, 120, 'imgBirdBlueDown').setScale(1).setGravityX(30)
       this.cameras.main.startFollow(this.bird);
-    } else if (this.bird === 'red'){
-      console.log('redd')
-      this.bird = this.physics.add.image(240, 120, 'imgBirdRed').setScale(1).setGravityX(30)
+    } else if (this.bird === 'Red'){
+      this.bird = this.physics.add.image(240, 120, 'imgBirdRedDown').setScale(1).setGravityX(30)
       this.cameras.main.startFollow(this.bird);
     }
     //this.bird = this.physics.add.image(240, 120, 'imgBird').setScale(2.5).setGravityX(30)
@@ -99,7 +104,11 @@ export default class Level extends Scene {
       }
     });
 
-
+    if (this.bird.body.velocity.y > 0) {
+      this.bird.setTexture('imgBird' + this.corBird + 'Down');
+    } else {
+      this.bird.setTexture('imgBird' + this.corBird + 'Up');
+    }
 
   }
 }

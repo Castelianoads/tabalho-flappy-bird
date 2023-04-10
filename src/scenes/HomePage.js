@@ -40,10 +40,10 @@ export default class homePage extends Scene {
 
 function selectBird(birdBlue, birdRed){
   birdBlue.on('pointerdown', () => {
-    birdSelect = 'blue';
+    birdSelect = 'Blue';
   });
 
   birdRed.on('pointerdown', () => {
-    birdSelect = 'red';
+    birdSelect = 'Red';
   });
 }
