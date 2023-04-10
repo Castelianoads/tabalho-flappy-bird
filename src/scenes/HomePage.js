@@ -1,5 +1,7 @@
 import { Scene } from "phaser";
+
 var birdSelect = '';
+
 export default class homePage extends Scene {
   birdBlue;
   birdRed;  

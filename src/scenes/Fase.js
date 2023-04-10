@@ -34,6 +34,7 @@ export default class Level extends Scene {
   create() {
     this.add.image(240, 320, 'imgBackground').setScrollFactor(0);
 
+    // Verifica qual Bird foi selecionado na Scene HomePage
     if(this.bird === 'Blue'){
       this.bird = this.physics.add.image(240, 120, 'imgBirdBlueDown').setScale(1).setAccelerationX(30)
       this.cameras.main.startFollow(this.bird);
@@ -45,9 +46,10 @@ export default class Level extends Scene {
     this.pipesUp = this.physics.add.staticGroup();
     this.pipesDown = this.physics.add.staticGroup();
 
+    // Aciona quando clica com o botão direito do mouse
     this.input.on('pointerdown', click, this);
 
-    // 5 first pipe
+    // 5 primeiros Pipes
     for (let i = 0; i < 5; i++) {
       const upX = 250 * i;
       const upY = Phaser.Math.Between(-200, 0);
@@ -60,6 +62,7 @@ export default class Level extends Scene {
       pipeDown.body.updateFromGameObject();
     }
 
+    // Texto pontuação
     const style = { color: '#000', fontSize: 24 };
     this.pointsText = this.add.text(240, 10, 'Pontos: ' + this.points, style);
     this.pointsText.setScrollFactor(0);
@@ -67,20 +70,21 @@ export default class Level extends Scene {
   }
 
   update(time, delta) {
-    // 
+    // Verifica de o Bird caiu
     if (this.bird.y > 600 || this.bird.y < 0) {
       gameOver();
     }
 
     // Verifica se o pássaro passou pelo cano e adiciona pontos
     this.pipesUp.getChildren().forEach((pipeUp) => {
-    if (pipeUp.getBounds().right < this.bird.getBounds().left && !pipeUp.scored) {
-      this.points += 1;
-      this.pointsText.setText('Pontos: ' + this.points);
-      pipeUp.scored = true;
-    }
-  });
+      if (pipeUp.getBounds().right < this.bird.getBounds().left && !pipeUp.scored) {
+        this.points += 1;
+        this.pointsText.setText('Pontos: ' + this.points);
+        pipeUp.scored = true;
+      }
+    });
 
+    // Quando apertar SPACE
     this.input.keyboard.once('keydown-SPACE', () => {
       this.bird.setVelocityY(-150);
     });
