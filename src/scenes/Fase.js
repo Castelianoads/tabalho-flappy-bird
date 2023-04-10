@@ -1,36 +1,36 @@
 import { Math, Scene } from "phaser";
 
 export default class Level extends Scene {
-  /** @type {Phaser.Physics.Arcade.Sprite} */
-  bird;
-
-  /** @type {Phaser.Physics.Arcade.StaticGroup} */
   pipesUp;
-
-  /** @type {Phaser.Physics.Arcade.StaticGroup} */
   pipesDown;
-
-  /** @type {Phaser.GameObjects.Text} */
   pointsText;
-
   keySpace;
   points = 0
 
   constructor() {
-    super('level');
+    super('fase');
+  }
+  init(data) {
+    this.bird = data.bird;
   }
 
   preload() {
     this.load.image('imgBackground', 'assets/backgroundColorGrass.png');
     this.load.image('imgPipeUp', 'assets/pipe-green-top.png');
     this.load.image('imgPipeDown', 'assets/pipe-green-bottom.png');
-    this.load.image('imgBird', 'assets/bird.png');
-  }
+    this.load.image('imgBirdBlue', 'assets/bluebird-downflap.png');
+    this.load.image('imgBirdRed', 'assets/redbird-downflap.png');  }
 
   // CREATE
   create() {
+    if(this.bird == 'blue'){
+      this.bird = this.physics.add.image(240, 120, 'imgBirdBlue').setScale(1).setGravityX(30)
+    } else if(this.bird == 'red'){
+      this.bird = this.physics.add.image(240, 120, 'imgBirdRed').setScale(1).setGravityX(30)
+    }
+
     this.add.image(240, 320, 'imgBackground').setScrollFactor(0);
-    this.bird = this.physics.add.image(240, 120, 'imgBird').setScale(2.5).setGravityX(30)
+    //this.bird = this.physics.add.image(240, 120, 'imgBird').setScale(2.5).setGravityX(30)
     this.pipesUp = this.physics.add.staticGroup();
     this.pipesDown = this.physics.add.staticGroup();
 
@@ -114,7 +114,5 @@ function addPipe(){
   const downX = upX;
   const downY = upY + 500;
   const pipeDown = this.pipesDown.create(downX, downY, 'imgPipeDown');
-  pipeDown.body.updateFromGameObject();
-
-  
+  pipeDown.body.updateFromGameObject();  
 }
