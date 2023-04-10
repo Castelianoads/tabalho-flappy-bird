@@ -5,16 +5,15 @@ export default class Level extends Scene {
   pipesDown;
   pointsText;
   keySpace;
-  points = 0
+  points = 0;
   bird;
-  corBird
+  corBird;
 
   constructor() {
     super('fase');
   }
 
   init(data) {
-    console.log('init', data);
     this.bird = data.bird;
     this.corBird = data.bird;
   }
@@ -32,17 +31,17 @@ export default class Level extends Scene {
     this.load.image('imgBirdRedDown', 'assets/redbird-downflap.png');  
   }
 
-  // CREATE
   create() {
     this.add.image(240, 320, 'imgBackground').setScrollFactor(0);
+
     if(this.bird === 'Blue'){
-      this.bird = this.physics.add.image(240, 120, 'imgBirdBlueDown').setScale(1).setGravityX(30)
+      this.bird = this.physics.add.image(240, 120, 'imgBirdBlueDown').setScale(1).setAccelerationX(30)
       this.cameras.main.startFollow(this.bird);
     } else if (this.bird === 'Red'){
-      this.bird = this.physics.add.image(240, 120, 'imgBirdRedDown').setScale(1).setGravityX(30)
+      this.bird = this.physics.add.image(240, 120, 'imgBirdRedDown').setScale(1).setAccelerationX(30)
       this.cameras.main.startFollow(this.bird);
-    }
-    //this.bird = this.physics.add.image(240, 120, 'imgBird').setScale(2.5).setGravityX(30)
+    } 
+
     this.pipesUp = this.physics.add.staticGroup();
     this.pipesDown = this.physics.add.staticGroup();
 
@@ -67,29 +66,28 @@ export default class Level extends Scene {
     this.pointsText.setOrigin(0.5, 0);
   }
 
-  // UPDATE
   update(time, delta) {
+    // 
     if (this.bird.y > 600 || this.bird.y < 0) {
       gameOver();
     }
+
+    // Verifica se o pássaro passou pelo cano e adiciona pontos
+    this.pipesUp.getChildren().forEach((pipeUp) => {
+    if (pipeUp.getBounds().right < this.bird.getBounds().left && !pipeUp.scored) {
+      this.points += 1;
+      this.pointsText.setText('Pontos: ' + this.points);
+      pipeUp.scored = true;
+    }
+  });
 
     this.input.keyboard.once('keydown-SPACE', () => {
       this.bird.setVelocityY(-150);
     });
 
-    // Colisão
     this.physics.overlap(this.bird, this.pipesUp, gameOver, null, this);
     this.physics.overlap(this.bird, this.pipesDown, gameOver, null, this);
-
-    this.pipesDown.getChildren().forEach((pipe) => {
-      if (pipe.getBounds().right < 0) {
-        console.log('passou');
-        pipe.destroy();
-        this.points += 1;
-        this.pointsText.setText(`Pontos: ${this.points}`);
-      }
-    });
-
+    
     addPipe(this.pipesUp, this.pipesDown, this.cameras);
 
     // Texture ao subir e descer
@@ -102,16 +100,6 @@ export default class Level extends Scene {
   }
 }
 
-function updatePoints(){
-  this.pipesUp.getChildren().forEach((pipeUp) => {
-    if (pipeUp.getBounds().right < this.bird.getBounds().left && !pipeUp.scored) {
-      pipeUp.scored = true;
-      this.points++;
-      this.pointsText.text = 'Pontos: ' + this.points;
-    }
-  });
-}
-
 function gameOver(){
   this.scene.start('gameOver', { points: this.points });      
 }
@@ -121,14 +109,14 @@ function click() {
 }
 
 function addPipe(up, down, camera){
-  up.getChildren().forEach((pipeUp, index) => {
+  up.getChildren().forEach((pipeUp, i) => {
     if (pipeUp.getBounds().right < camera.main.worldView.left) {
       pipeUp.x += 250 * 5;
       pipeUp.y = Phaser.Math.Between(-200, 0);
       pipeUp.scored = false;
       pipeUp.body.updateFromGameObject();
 
-      const pipeDown = down.getChildren()[index];
+      const pipeDown = down.getChildren()[i];
       pipeDown.x = pipeUp.x;
       pipeDown.y = pipeUp.y + 500;
       pipeDown.body.updateFromGameObject();
