@@ -33,19 +33,18 @@ export default class Level extends Scene {
     this.bird = this.physics.add.image(240, 120, 'imgBird').setScale(2.5).setGravityX(30)
     this.pipesUp = this.physics.add.staticGroup();
     this.pipesDown = this.physics.add.staticGroup();
-    this.pipes = this.physics.add.group();
 
     this.input.on('pointerdown', click, this);
 
     // 5 first pipe
     for (let i = 0; i < 5; i++) {
       const upX = 300 * i;
-      const upY = -100;
+      const upY = Phaser.Math.Between(-200, 0);
       const pipeUp = this.pipesUp.create(upX, upY, 'imgPipeUp')
       pipeUp.body.updateFromGameObject();
 
       const downX = upX;
-      const downY = 400;
+      const downY = upY + 500;
       const pipeDown = this.pipesDown.create(downX, downY, 'imgPipeDown')
       pipeDown.body.updateFromGameObject();
     }
@@ -53,7 +52,7 @@ export default class Level extends Scene {
     this.cameras.main.startFollow(this.bird);
 
     const style = { color: '#000', fontSize: 24 };
-    this.pointsText = this.add.text(240, 10, 'Cenouras: 0', style);
+    this.pointsText = this.add.text(240, 10, 'Pontos: 0', style);
     this.pointsText.setScrollFactor(0);
     this.pointsText.setOrigin(0.5, 0);
 
@@ -75,20 +74,20 @@ export default class Level extends Scene {
     this.physics.overlap(this.bird, this.pipesUp, gameOver, null, this);
     this.physics.overlap(this.bird, this.pipesDown, gameOver, null, this);
 
-    // Removendo canos ao sair da tela
-    // this.pipesUp.children.forEach(function(pipe) {
-    //   if (pipe.getBounds().right < 0) {
-    //     pipe.destroy();
-    //   }
-    // });
+    this.pipesUp.getChildren().forEach((pipe) => {
+      if (pipe.getBounds().right < 0) {
+        pipe.destroy();
+      }
+    });
 
-    // // Removendo canos ao sair da tela
-    // this.pipesDown.children.forEach(function(pipe) {
-    //   if (pipe.getBounds().right < 0) {
-    //     pipe.destroy();
-    //     this.points += 1;
-    //   }
-    // });
+    this.pipesDown.getChildren().forEach((pipe) => {
+      if (pipe.getBounds().right < 0) {
+        pipe.destroy();
+        this.points += 1;
+        this.pointsText.setText(`Pontos: ${this.points}`);
+      }
+    });
+
 
 
   }
@@ -107,5 +106,15 @@ function click() {
 }
 
 function addPipe(){
-  console.log('AddPipe');
+  const upX = 300 * 5;
+  const upY = Phaser.Math.Between(-200, 0);
+  const pipeUp = this.pipesUp.create(upX, upY, 'imgPipeUp');
+  pipeUp.body.updateFromGameObject();
+
+  const downX = upX;
+  const downY = upY + 500;
+  const pipeDown = this.pipesDown.create(downX, downY, 'imgPipeDown');
+  pipeDown.body.updateFromGameObject();
+
+  
 }
