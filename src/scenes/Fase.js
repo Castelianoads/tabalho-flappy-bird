@@ -68,12 +68,12 @@ export default class Level extends Scene {
     this.pointsText.setScrollFactor(0);
     this.pointsText.setOrigin(0.5, 0);
 
-    this.timer = this.time.addEvent({
-      delay: 1500,
-      callback: addPipe,
-      callbackScope: this,
-      loop: true
-    });
+    // this.timer = this.time.addEvent({
+    //   delay: 1500,
+    //   callback: addPipe,
+    //   callbackScope: this,
+    //   loop: true
+    // });
   }
 
   // UPDATE
@@ -104,6 +104,7 @@ export default class Level extends Scene {
       }
     });
 
+    // Texture ao subir e descer
     if (this.bird.body.velocity.y > 0) {
       this.bird.setTexture('imgBird' + this.corBird + 'Down');
     } else {
@@ -114,10 +115,8 @@ export default class Level extends Scene {
 }
 
 function gameOver(){
-  // ir para scenes GameOver
-  console.log('gameover');
-  this.physics.pause();
-
+  this.scene.start('gameOver', { points: this.points });      
+  //this.physics.pause();
 }
 
 function click() {
@@ -130,9 +129,20 @@ function addPipe(){
   const upY = Phaser.Math.Between(-200, 0);
   const pipeUp = this.pipesUp.create(upX, upY, 'imgPipeUp');
   pipeUp.body.updateFromGameObject();
-
+  
   const downX = upX;
   const downY = upY + 500;
   const pipeDown = this.pipesDown.create(downX, downY, 'imgPipeDown');
   pipeDown.body.updateFromGameObject();  
 }
+// function addPipe(){
+//   const upX = 300 * 5;
+//   const upY = Phaser.Math.Between(-200, 0);
+//   const pipeUp = this.pipesUp.create(upX, upY, 'imgPipeUp');
+//   pipeUp.body.updateFromGameObject();
+
+//   const downX = upX;
+//   const downY = upY + 500;
+//   const pipeDown = this.pipesDown.create(downX, downY, 'imgPipeDown');
+//   pipeDown.body.updateFromGameObject();  
+// }
