@@ -1,24 +1,38 @@
-// GameOver.js
 import { Scene } from "phaser";
 
-export default class GameOver extends Scene {
+export default class GameOver extends Scene
+{
+  constructor(){
+    super('game-over');
+  }
 
-    constructor() {
-        super('sceneGame-over');
-    }
+  init(data) {
+    this.points = data.points;
+  }
 
-    create() {
-        let width = this.scale.width;
-        let height = this.scale.height;
-        console.log(width, height)
+  preload() {
+    this.load.image('imgBackground', 'assets/backgroundColorGrass.png');
+    this.load.image('imgGameOver', 'assets/gameover.png');
+  }
 
-        this.add.text(width/2, height/2, 'GAME OVER', {
-            fontSize: 48
-        }).setOrigin(0.5);
+  create() {
+    let width = this.scale.width
+    let height = this.scale.height
+    this.add.image(240, 320, 'imgBackground').setScrollFactor(0);
+    this.birdBlue = this.physics.add.staticSprite(width / 2, height / 2, 'imgGameOver');
 
-        // Jogar de novo
-        this.input.keyboard.once('keydown-SPACE', () => {
-            this.scene.start('level');
-        });
-    }
+    this.add.text(width/2, height/2,'Pontos: '+this.points,{
+      fontSize:30
+    }).setOrigin(0.5);
+      
+
+    this.add.text(250, 150, 'Pressione SPACE para jogar novamente', { font: '40px Arial', fill: '#000000' }).setOrigin(0.5);
+
+    this.input.keyboard.once('keydown-SPACE',()=>{
+      this.scene.start('homePage')
+    });
+  }
+
+    
+
 }

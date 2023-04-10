@@ -59,7 +59,7 @@ export default class Level extends Scene {
     //this.cameras.main.startFollow(this.bird);
 
     const style = { color: '#000', fontSize: 24 };
-    this.pointsText = this.add.text(240, 10, 'Pontos: 0', style);
+    this.pointsText = this.add.text(240, 10, 'Pontos: ' + this.points, style);
     this.pointsText.setScrollFactor(0);
     this.pointsText.setOrigin(0.5, 0);
 
@@ -76,6 +76,10 @@ export default class Level extends Scene {
     if (this.bird.y > 600 || this.bird.y < 0) {
       gameOver();
     }
+
+    this.input.keyboard.once('keydown-SPACE', () => {
+      this.bird.setVelocityY(-100);
+    });
 
     // Colisão
     this.physics.overlap(this.bird, this.pipesUp, gameOver, null, this);
