@@ -50,7 +50,7 @@ export default class Level extends Scene {
 
     // 5 first pipe
     for (let i = 0; i < 5; i++) {
-      const upX = 300 * i;
+      const upX = 250 * i;
       const upY = Phaser.Math.Between(-200, 0);
       const pipeUp = this.pipesUp.create(upX, upY, 'imgPipeUp')
       pipeUp.body.updateFromGameObject();
@@ -61,19 +61,10 @@ export default class Level extends Scene {
       pipeDown.body.updateFromGameObject();
     }
 
-    //this.cameras.main.startFollow(this.bird);
-
     const style = { color: '#000', fontSize: 24 };
     this.pointsText = this.add.text(240, 10, 'Pontos: ' + this.points, style);
     this.pointsText.setScrollFactor(0);
     this.pointsText.setOrigin(0.5, 0);
-
-    // this.timer = this.time.addEvent({
-    //   delay: 1500,
-    //   callback: addPipe,
-    //   callbackScope: this,
-    //   loop: true
-    // });
   }
 
   // UPDATE
@@ -83,26 +74,23 @@ export default class Level extends Scene {
     }
 
     this.input.keyboard.once('keydown-SPACE', () => {
-      this.bird.setVelocityY(-100);
+      this.bird.setVelocityY(-150);
     });
 
     // Colisão
     this.physics.overlap(this.bird, this.pipesUp, gameOver, null, this);
     this.physics.overlap(this.bird, this.pipesDown, gameOver, null, this);
 
-    this.pipesUp.getChildren().forEach((pipe) => {
-      if (pipe.getBounds().right < 0) {
-        pipe.destroy();
-      }
-    });
-
     this.pipesDown.getChildren().forEach((pipe) => {
       if (pipe.getBounds().right < 0) {
+        console.log('passou');
         pipe.destroy();
         this.points += 1;
         this.pointsText.setText(`Pontos: ${this.points}`);
       }
     });
+
+    addPipe(this.pipesUp, this.pipesDown, this.cameras);
 
     // Texture ao subir e descer
     if (this.bird.body.velocity.y > 0) {
@@ -114,35 +102,36 @@ export default class Level extends Scene {
   }
 }
 
+function updatePoints(){
+  this.pipesUp.getChildren().forEach((pipeUp) => {
+    if (pipeUp.getBounds().right < this.bird.getBounds().left && !pipeUp.scored) {
+      pipeUp.scored = true;
+      this.points++;
+      this.pointsText.text = 'Pontos: ' + this.points;
+    }
+  });
+}
+
 function gameOver(){
   this.scene.start('gameOver', { points: this.points });      
-  //this.physics.pause();
 }
 
 function click() {
-  this.bird.setVelocityY(-100);
-  console.log("click");
+  this.bird.setVelocityY(-150);
 }
 
-function addPipe(){
-  const upX = 300 * 5;
-  const upY = Phaser.Math.Between(-200, 0);
-  const pipeUp = this.pipesUp.create(upX, upY, 'imgPipeUp');
-  pipeUp.body.updateFromGameObject();
-  
-  const downX = upX;
-  const downY = upY + 500;
-  const pipeDown = this.pipesDown.create(downX, downY, 'imgPipeDown');
-  pipeDown.body.updateFromGameObject();  
-}
-// function addPipe(){
-//   const upX = 300 * 5;
-//   const upY = Phaser.Math.Between(-200, 0);
-//   const pipeUp = this.pipesUp.create(upX, upY, 'imgPipeUp');
-//   pipeUp.body.updateFromGameObject();
+function addPipe(up, down, camera){
+  up.getChildren().forEach((pipeUp, index) => {
+    if (pipeUp.getBounds().right < camera.main.worldView.left) {
+      pipeUp.x += 250 * 5;
+      pipeUp.y = Phaser.Math.Between(-200, 0);
+      pipeUp.scored = false;
+      pipeUp.body.updateFromGameObject();
 
-//   const downX = upX;
-//   const downY = upY + 500;
-//   const pipeDown = this.pipesDown.create(downX, downY, 'imgPipeDown');
-//   pipeDown.body.updateFromGameObject();  
-// }
+      const pipeDown = down.getChildren()[index];
+      pipeDown.x = pipeUp.x;
+      pipeDown.y = pipeUp.y + 500;
+      pipeDown.body.updateFromGameObject();
+      }
+  });
+}
